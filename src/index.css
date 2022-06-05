@@ -11,3 +11,41 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.modal-height{
+  content: '';
+  display: inline-block;
+  height: 1000px;
+  width: 600px;
+  vertical-align: middle;
+  margin-right: -4px;
+  overflow: hidden;
+}
+.wow{
+  overflow: hidden;
+  width:auto
+}
+iframe {
+  position: absolute;
+  right:-400px;
+  width: 1280px;
+    height: 786px;
+    border: 0;
+
+    -ms-transform: scale(0.75);
+    -moz-transform: scale(0.7);
+    -o-transform: scale(0.7);
+    -webkit-transform: scale(0.7);
+    transform: scale(0.7);
+
+    -ms-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+}
+.head{
+  margin-bottom: 0;
+}
+.head h6{
+  margin-bottom: 0
+}
