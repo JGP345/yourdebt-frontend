@@ -69,27 +69,21 @@ class App extends Component {
    }
    handleChange = (e) => {
     let { name, value } = e.target;
-console.log(name)
-console.log(value)
-    this.state.loginInfo[name] = value 
-  console.log(this.state.loggedInfo[name])};
+
+    this.state.loginInfo[name] = value ;}
 
   
 
 
-    handleLogin =  (un, pw) => {
+    handleLogin = async (un, pw) => {
 
     this.state.logged = true
-    this.getToken(un, pw)
-    this.refreshList();
-   
-
-  
+    this.getToken(un, pw, this.refreshList)
 }
 
  
 
-   getToken = async (un, pw) => {
+   getToken = async (un, pw, n) => {
     const response = await fetch(URL + 'api/token/',
  {   method: "post",
     headers:{
@@ -97,16 +91,13 @@ console.log(value)
     },
   body: JSON.stringify({username: un, password: pw})})
   const data = await response.json()
-  console.log(data)
   this.state.token.access = data.access
-  this.state.token.refresh = data.refresh
-  console.log(this.state.token)
-  
-  } 
+  this.state.token.refresh = data.refresh;
+  n();
+  }
 
       
     refreshList = async () => {
-      console.log(this.state.token.access)
       const openDebtsUrl = URL +'api/opendebt/';
       const closeDebtsUrl = URL + 'api/closedebt/';
       const mortgagesUrl = URL+ 'api/mortgage/';

@@ -81,12 +81,8 @@ return Math.round(extra)
       return (Math.round(pay*100)/100)
     }
     amount_owed += (amount_owed * monthlyint)
-
-
-
-
   }
-
+return(`${(Math.round(pay*100)/100)} but still owe $${Math.round(amount_owed*100)/100}`)
 }
 
 
@@ -140,7 +136,7 @@ return Math.round(extra)
           
         </ModalBody>
 <ModalFooter>
- {this.state.byPay ? <center><h4> You will pay ${this.calculateByPay(this.state.activeItem)} in {x} months</h4></center>
+ {this.state.byPay ? <center><h4> You will pay ${this.calculateByPay(this.state.activeItem)} {x===0 ? null:` in ${x} months`}</h4></center>
 : null}
  {this.state.byMonths ? <center><h4> You will  have to pay ${this.calculateByMonths(this.state.activeItem)} extra per month</h4></center>
 : null}

@@ -112,7 +112,7 @@ export default class Modal2 extends Component {
                 type="text"
                 id="term"
                 name="term"
-                value={this.state.activeItem.time_topay}
+                value={this.state.activeItem.term}
                 onChange={this.handleChange}
                 placeholder="Enter number of months"
               />
