@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import Modal from "./components/Modal1";
-import Modal2 from "./components/Modal2";
-import Modal3 from "./components/Modal3";
-import Modal4 from "./components/Modal4";
-import Modal5 from "./components/Modal5";
+import Modal from "../components/Modal1";
+import Modal2 from "../components/Modal2";
+import Modal3 from "../components/Modal3";
+import Modal4 from "../components/Modal4";
+import Modal5 from "../components/Modal5";
 import axios from "axios";
-
+import { Redirect, Route, Switch } from "react-router-dom";
 
 const URL = 'https://yourdebt-backend.herokuapp.com/'
 
-class App extends Component {
+class HomePage extends Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -19,11 +19,8 @@ class App extends Component {
         mortgageList: [],
         modal: false,
         calculate:false,
-        logged:false,
         loginInfo: {username: "",
       password: ""},
-        token:{refresh: "",
-        access: ""},
         thirtyAverage: "",
         fifteenAverage: "",
         activeOpenDebt: {
@@ -59,6 +56,7 @@ class App extends Component {
     }
   
     componentDidMount = async () => {
+       this.refreshList();
        const res = await fetch('https://cloud.iexapis.com/stable/data-points/market/MORTGAGE30US?token=pk_fb2f30e9d9124d01aaa8632476f2b9a0')
        const thirty = await res.json()
        const res2 = await fetch('https://cloud.iexapis.com/stable/data-points/market/MORTGAGE15US?token=pk_fb2f30e9d9124d01aaa8632476f2b9a0')
@@ -67,63 +65,30 @@ class App extends Component {
   
        
    }
-   handleChange = (e) => {
-    let { name, value } = e.target;
-console.log(name)
-console.log(value)
-    this.state.loginInfo[name] = value 
-  console.log(this.state.loggedInfo[name])};
-
-  
-
-
-    handleLogin =  (un, pw) => {
-
-    this.state.logged = true
-    this.getToken(un, pw)
-    this.refreshList();
-   
-
-  
-}
-
- 
-
-   getToken = async (un, pw) => {
-    const response = await fetch(URL + 'api/token/',
- {   method: "post",
-    headers:{
-      "Content-Type": "application/json"
-    },
-  body: JSON.stringify({username: un, password: pw})})
-  const data = await response.json()
-  console.log(data)
-  this.state.token.access = data.access
-  this.state.token.refresh = data.refresh
-  console.log(this.state.token)
-  
-  } 
-
       
-    refreshList = async () => {
-      console.log(this.state.token.access)
+    refreshList = () => {
       const openDebtsUrl = URL +'api/opendebt/';
       const closeDebtsUrl = URL + 'api/closedebt/';
       const mortgagesUrl = URL+ 'api/mortgage/';
-      const getOpenDebts = axios.get(openDebtsUrl, {headers: {'Authorization' : 'Bearer ' + this.state.token.access}});
-      const getCloseDebts = axios.get(closeDebtsUrl,{headers: {'Authorization' : 'Bearer ' + this.state.token.access}});
-      const getmortgages = axios.get(mortgagesUrl,{headers: {'Authorization' : 'Bearer ' + this.state.token.access}});
-     await axios.all([getOpenDebts,getCloseDebts, getmortgages,]).then(
+      const getOpenDebts = axios.get(openDebtsUrl);
+      const getCloseDebts = axios.get(closeDebtsUrl);
+      const getmortgages = axios.get(mortgagesUrl);
+      axios.all([getOpenDebts,getCloseDebts, getmortgages,]).then(
       axios.spread((...allData) => {
-        console.log(allData[0])
       this.setState({openDebtList: allData[0].data});
-      console.log(this.state.openDebtList);
       this.setState({closeDebtList: allData[1].data});  
       this.setState({mortgageList: allData[2].data})}))};
-      
   
     toggle = () => {
       this.setState({ modal: !this.state.modal, calculate: !this.state.calculate });
+    };
+
+    handleChange = (e) => {
+      let { name, value } = e.target;
+  
+      const activeItem = { ...this.state.loginInfo, [name]: value };
+  
+      this.setState({ activeItem });
     };
   
   
@@ -136,7 +101,6 @@ console.log(value)
     'Access-Control-Allow-Origin' : '*',
     'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
     }});
-
   axios.all([thirtyAvg,fitheenAvg]).then(
     axios.spread((...allData) => {
       this.setState({thirtyAverages: allData[0].data});
@@ -144,54 +108,53 @@ console.log(value)
     }))};
   
     handleSubmit = (item) => {
-      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.state.token.access;
       this.toggle();
       if(this.state.type === "Mortgage"){
       if (item.id) {
         axios
-          .put(`${URL}api/mortgage/${item.id}/`, item)
+          .put(`/api/mortgage/${item.id}/`, item)
           .then((res) => this.refreshList());
         return;
       }
       axios
-        .post(URL + "api/mortgage/", item)
+        .post("/api/mortgage/", item)
         .then((res) => this.refreshList());
     };
     if(this.state.type === "Open Debt"){
       if (item.id) {
         axios
-          .put(`${URL}api/opendebt/${item.id}/`, item)
+          .put(`/api/opendebt/${item.id}/`, item)
           .then((res) => this.refreshList());
         return;
       }
       axios
-        .post(URL + "api/opendebt/", item)
+        .post("/api/opendebt/", item)
         .then((res) => this.refreshList());
     };
     if(this.state.type === "Close Debt"){
       if (item.id) {
         axios
-          .put(`${URL}api/closedebt/${item.id}/`, item)
+          .put(`/api/closedebt/${item.id}/`, item)
           .then((res) => this.refreshList());
         return;
       }
       axios
-        .post(URL +"api/closedebt/", item)
+        .post("/api/closedebt/", item)
         .then((res) => this.refreshList());
     };}
   
     handleDelete = (item) => {
       if(this.state.type === "Mortgage"){
           axios
-        .delete(`${URL}api/mortgage/${item.id}/`)
+        .delete(`/api/mortgage/${item.id}/`)
         .then((res) => this.refreshList());}
       if(this.state.type === "Open Debt"){
           axios
-            .delete(`${URL}api/opendebt/${item.id}/`)
+            .delete(`/api/opendebt/${item.id}/`)
             .then((res) => this.refreshList());}
       if(this.state.type === "Close Debt"){
           axios
-            .delete(`${URL}api/closedebt/${item.id}/`)
+            .delete(`/api/closedebt/${item.id}/`)
             .then((res) => this.refreshList());}
     };
   
@@ -305,9 +268,8 @@ console.log(value)
     };
   
     render() {
-      return (this.state.logged ? (  <main className="container">
-
-          
+      return (
+        <main className="container">
            
           <h1 className="text-black text-uppercase text-center my-4">YourDebt</h1>
           <div className="row">
@@ -380,22 +342,10 @@ console.log(value)
   </div>
   
   
-                      
-        </main>) : (<main> <center>
-    <div> 
-    <h1>Welcome to YourDebt!</h1>
-    <h3> Please Login</h3>
-    <h4>Username:</h4>
-    <input type="text" name="username" onChange={this.handleChange}/><br></br>
-    <h4>Password:</h4>
- <input type="password" name="password" onChange={this.handleChange}/> <br></br>
-    <button onClick={ () => this.handleLogin(this.state.loginInfo.username, this.state.loginInfo.password)} >Login</button>
-    </div>
-    </center> </main>))
-      ;
+  
+        </main>
+      );
     }
   }
-
-
   
-  export default App;
+  export default HomePage;
